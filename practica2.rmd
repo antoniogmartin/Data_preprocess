@@ -58,14 +58,22 @@ c) 20 miliequivalentes por litro para los vinos tintos.
 
 ## 1.1 ¿Por qué es importante y qué pregunta/problema pretende responder?
 
-Pregunta: ¿Qué componente fisicoquímico influye en que un vino sea bueno?
+Pregunta: ¿Qué componentes fisico-químicos influyen en que un vino sea bueno?. Obtener un modelo cuya combinación de variables permita determinar si es un buen vino.
 
 
 # 2. Integración y selección de los datos de interés a analizar.
 
-La mayoría de los atributos corresponden con características necesarias para determinar la calidad del vino. 
-Sin embargo podemos prescindir del alcohol, total sulfur dioxide (indica elsuma de concentraciones libres y amarradas, solo nos interesan las libres) y density (indica proporción de alcohol y esta no es interesante para determinar la calidad).
 
+La mayoría de los atributos corresponden con características necesarias para determinar la calidad del vino. 
+Sin embargo podemos prescindir del  total sulfur dioxide (indica elsuma de concentraciones libres y amarradas, solo nos interesan las libres) y density (indica proporción de alcohol y esta no es interesante para determinar la calidad).
+
+
+**DUDA:¿Siempre hay que hacer caso al estudio de correlación (cercania -1 y +1)? Resulta curioso como en un primer momento las variables que creía no importantes resultan ser las que más correlación guardan con la calidad para esta muestra. Inicialmente creía que el alcohol o la densidad no eran importantes, basándome en la búsqueda que realicé en internet: https://www.vinopack.es/criterios-que-determinan-la-calidad-en-el-vino.**
+
+# 3 Limpieza de datos
+
+
+## 3.1 Elementos vacíos
 ```{r}
 # Números de valores desconocidos por campo
 sapply(wine_red, function(x) sum(is.na(x)))
@@ -74,13 +82,14 @@ sapply(wine_red, function(x) sum(is.na(x)))
 # Resumen de las variables
 summary(wine_red)
 #ph: correcto (entre 2 y 4)
-
 ```
 
+## 3.1 Valores extremos
+**DUDA: ¿Es necesario justificar para cada variable, la razón de porque los valores que resultan ser atípicos son en realidad legítimos? Por ejemplo: No se que rango es el adecuado para fixed.acidity **
 ```{r}
 # Para cada una de las variables observemos si existen valores atípicos
 
-boxplot(wine_red$fixed.acidity,main = "dixed.acidity",col="gray")
+boxplot(wine_red$fixed.acidity,main = "fixed.acidity",col="gray")
 boxplot.stats(wine_red$fixed.acidity)$out
 
 boxplot(wine_red$volatile.acidity,main = "volatile",col="gray")
@@ -109,13 +118,21 @@ boxplot.stats(wine_red$pH)$out
 boxplot(wine_red$sulphates,main = "sulphates",col="gray")
 boxplot.stats(wine_red$sulphates)$out
 
-#alcohol está dentro de unos rangos adecuados
-#boxplot(wine_red$ alcohol,main = " alcohol",col="gray")
-#boxplot.stats(wine_red$ alcohol)$out
 
+boxplot(wine_red$ alcohol,main = " alcohol",col="gray")
+boxplot.stats(wine_red$ alcohol)$out
+#alcohol está dentro de unos rangos adecuados
 
 ```
-**Comprobar si sigue distribución normal**
+
+# 4. Análisis de datos.
+## 4.1 Selección de los grupos de datos que se quieren analizar/comparar (planificación de los análisis a aplicar).
+
+
+
+**Comprobar  que variables siguen distribución normal**
+
+**DUDA: Todas las variables NO siguen distribución normal. ¿Debo normalizarlas?¿Siguen otro tipo de distribución y por tanto tengo que seguir otros pasos? ¿Como identifico que distribución sigue?**
 
 ```{r}
 library(nortest)
@@ -135,11 +152,16 @@ for (i in 1:ncol(wine_red)) {
       } 
   }
 ```
-## 2.5 ¿Qué variables cuantitativas influyen más en la calidad del vino?
+## 4.2 Comprobación de la normalidad y homogeneidad de la varianza
+
+
+**DUDA: ¿Cual es la variable que se escoge para aplicar el test de Fligner-Killen?¿ Es cualquiera que sigue una distribución normal?  **
+
+
+## 4.3 Aplicación de pruebas estadísticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc.
+
 En primer lugar, procedemos a realizar un análisis de correlación entre las distintas variables para determinar cuáles de ellas ejercen una mayor influencia sobre la calidad del vino
-```{r}
-spearman_test = cor.test(wine_red[,1],wine_red[,length(wine_red)],method = "spearman")
-```
+
 
 ```{r}
 corr_matrix <- matrix(nc = 2, nr = 0)
@@ -160,10 +182,127 @@ if (is.integer(wine_red[,i]) | is.numeric(wine_red[,i]))
   } 
 }
 
-a <- corr_matrix[,'estimate']
+a <- corr_matrix[,'p-value']
 corr_matrix[order(a),]
 ```
 Así, identificamos cuáles son las variables más correlacionadas con la calidad según su proximidad con los valores -1 y +1.
-Teniendo esto en cuenta, queda patente cómo la variable más relevante en para la calidad es la variable alcohol.
+Teniendo esto en cuenta, queda patente cómo la variable más relevante para **la calidad** es la variable alcohol.
 
 Nota. Para cada coeficiente de correlación se muestra también su p-valor asociado, puesto que éste puede dar información acerca del peso estadístico de la correlación obtenida.
+
+
+
+**DUDA: ¿Es buen criterio plantear hipótesis sobre la variable "aparentemente" más correlada con la variable dependiente?**
+
+
+### ¿ A más alcohol, mejor es la calidad del vino?
+
+```{r}
+high_alcohol<-quantile(wine_red$alcohol, probs =0.75)
+
+quality_alcohol<-wine_red[wine_red$alcohol>=high_alcohol,]$quality
+
+ t.test(quality_alcohol, wine_red$quality, alternative = "greater")
+ 
+ #a mas alcohol por lo general más calidad
+```
+
+### Modelo de regresión lineal logística
+
+Tal y como se planteó en los objetivos de la actividad, resultará de mucho interés poder realizar predicciones sobre la calidad del vino dadas sus características.
+Así, se calculará un modelo de regresión lógistica utilizando regresores tanto cuantitativos como cualitativos con el que poder realizar las predicciones sobre la calidad.
+**Se usa regresión logística ya que nuestro modelo predicirá si el vino es de calidad o no (variable dicotómica).**
+Para obtener un modelo de regresión logística considerablemente eficiente, lo que haremos será obtener varios modelos de regresión utilizando las variables que estén más correladas con respecto a la calidad.
+
+**DUDA: ¿Cómo saber cuantas variables coger: las 3, 4 o 5 primeras?¿Añado otra más que no esté en ese TOP? ¿Cómo averiguar si las variables están relacionadas y por tanto no debo añadir ambas? ¿Solo tengo como herramienta la información que tengo de las variables?**
+
+```{r}
+
+# Regresores cuantitativos con mayor coeficiente  de correlación con respecto al precio
+alcohol = wine_red$alcohol
+volatile.acidity = wine_red$volatile.acidity
+sulphates=wine_red$sulphates
+citric.acid=wine_red$citric.acid
+total.sulfur.dioxide=wine_red$total.sulfur.dioxide
+chlorides=wine_red$chlorides
+density=wine_red$density
+fixed.acidity=wine_red$fixed.acidity
+free.sulfur.dioxide=wine_red$free.sulfur.dioxide  
+pH=wine_red$pH
+good_wine <-ifelse(test=wine_red$quality>=7,yes=1,no=0)
+wine_red$good_wine=good_wine
+
+GLM.1 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + fixed.acidity, family=binomial(logit),data=wine_red)
+#summary(GLM.1)
+AIC_GLM1<-summary(GLM.1)$aic
+#exp(coef(GLM.1))
+
+GLM.2 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + citric.acid, family=binomial(logit),data=wine_red)
+#summary(GLM.2)
+AIC_GLM2<-summary(GLM.2)$aic
+#exp(coef(GLM.2))
+
+
+GLM.3 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + density, family=binomial(logit),data=wine_red)
+AIC_GLM3<-summary(GLM.3)$aic
+
+
+GLM.4 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + total.sulfur.dioxide, family=binomial(logit),data=wine_red)
+AIC_GLM4<-summary(GLM.4)$aic
+
+
+GLM.5 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + free.sulfur.dioxide  , family=binomial(logit),data=wine_red)
+AIC_GLM5<-summary(GLM.5)$aic
+
+GLM.6 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + chlorides  , family=binomial(logit),data=wine_red)
+AIC_GLM6<-summary(GLM.6)$aic
+
+GLM.7 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + pH  , family=binomial(logit),data=wine_red)
+AIC_GLM7<-summary(GLM.7)$aic
+
+# DUDA: ¿¿A MÁS VARIABLES ES MEJOR??
+GLM.8 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + total.sulfur.dioxide + citric.acid + free.sulfur.dioxide , family=binomial(logit),data=wine_red)
+AIC_GLM8<-summary(GLM.8)$aic
+
+AIC_GLM1
+AIC_GLM2
+AIC_GLM3
+AIC_GLM4
+AIC_GLM5
+AIC_GLM6
+AIC_GLM7
+AIC_GLM8
+p_model8 <- predict(GLM.8, type = 'response')
+p_model4 <- predict(GLM.4, type = 'response')
+summary(p_model4)
+wine_red$prob<-p_model4
+wine_red$prob2<-p_model8
+pred <-ifelse(test=wine_red$prob>0.7,yes=1,no=0)
+pred2 <-ifelse(test=wine_red$prob2>0.7,yes=1,no=0)
+wine_red$pred=pred
+wine_red$pred2=pred2
+```
+
+# 5. Representación de los resultados a partir de tablas y gráficas.
+
+**Se observa una clara tendencia a que a más alcohol, mejor es la calidad**
+```{r}
+library(ggplot2)
+ggplot(wine_red, aes(x = alcohol, y = fixed.acidity, color = wine_red$good_wine)) + geom_point()
+aux=summary(wine_red$alcohol)
+```
+### Calculo curva ROC
+El mejor modelo, el número 4 tan solo me da un AUC=0.5451, es bastante malo. 
+**¿DUDA: A partir de que AUC considero un modelo aceptable?  ¿mayor que 88%?**
+```{r}
+
+library(pROC)
+#Cáculo curva
+g<-roc(wine_red$good_wine,wine_red$pred)
+g
+#Área bajo la curva
+auc(g)
+plot(g) 
+```
+
+# 6. Conclusiones. 
