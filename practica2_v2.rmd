@@ -16,15 +16,15 @@ output:
 
 ```{r}
 library(readr)
-wine_red <- read.csv(file="winequality-red.csv", header = TRUE)
+redwine <- read.csv(file="winequality-red.csv", header = TRUE)
 
 #numero de filas por dataset
-nrow(wine_red)
-ncol<-ncol(wine_red)
+nrow(redwine)
+ncol<-ncol(redwine)
 #sacamos 5 primeras filas
-head(wine_red[,1:ncol])
+head(redwine[,1:ncol])
 
-sapply(wine_red,class)
+sapply(redwine,class)
 ```
 # 1. Descripción del dataset
 
@@ -74,11 +74,11 @@ No obstante, en los siguientes apartados comprobaremos si esto es cierto, o por 
 ## 3.1 Elementos vacíos
 ```{r}
 # Números de valores desconocidos por campo
-sapply(wine_red, function(x) sum(is.na(x)))
+sapply(redwine, function(x) sum(is.na(x)))
 #No se han encontrado valores vacíos o NAs. 
 
 # Resumen de las variables
-summary(wine_red)
+summary(redwine)
 #ph: correcto (entre 2 y 4)
 ```
 
@@ -86,38 +86,38 @@ summary(wine_red)
 Para cada una de las variables observemos si existen valores atípicos:
 
 ```{r}
-boxplot(wine_red$fixed.acidity,main = "fixed.acidity",col="gray")
-boxplot.stats(wine_red$fixed.acidity)$out
+boxplot(redwine$fixed.acidity,main = "fixed.acidity",col="gray")
+boxplot.stats(redwine$fixed.acidity)$out
 
-boxplot(wine_red$volatile.acidity,main = "volatile",col="gray")
-boxplot.stats(wine_red$volatile.acidity)$out
+boxplot(redwine$volatile.acidity,main = "volatile",col="gray")
+boxplot.stats(redwine$volatile.acidity)$out
 
-boxplot(wine_red$citric.acid,main = "citric.acid",col="gray")
-boxplot.stats(wine_red$citric.acid)$out
+boxplot(redwine$citric.acid,main = "citric.acid",col="gray")
+boxplot.stats(redwine$citric.acid)$out
 
-boxplot(wine_red$residual.sugar,main = "residual.sugar",col="gray")
-boxplot.stats(wine_red$residual.sugar)$out
+boxplot(redwine$residual.sugar,main = "residual.sugar",col="gray")
+boxplot.stats(redwine$residual.sugar)$out
 
-boxplot(wine_red$chlorides,main = "chlorides",col="gray")
-boxplot.stats(wine_red$residual.sugar)$out
+boxplot(redwine$chlorides,main = "chlorides",col="gray")
+boxplot.stats(redwine$residual.sugar)$out
 
-boxplot(wine_red$chlorides,main = "residual.sugar",col="gray")
-boxplot.stats(wine_red$residual.sugar)$out
+boxplot(redwine$chlorides,main = "residual.sugar",col="gray")
+boxplot.stats(redwine$residual.sugar)$out
 
-boxplot(wine_red$free.sulfur.dioxide,main = "free.sulfur.dioxide",col="gray")
-boxplot.stats(wine_red$free.sulfur.dioxide)$out
+boxplot(redwine$free.sulfur.dioxide,main = "free.sulfur.dioxide",col="gray")
+boxplot.stats(redwine$free.sulfur.dioxide)$out
 
 
-boxplot(wine_red$pH,main = "pH",col="gray")
-boxplot.stats(wine_red$pH)$out
+boxplot(redwine$pH,main = "pH",col="gray")
+boxplot.stats(redwine$pH)$out
 #datos correctos porque los valores de pH estan entre 2 y 7
 
-boxplot(wine_red$sulphates,main = "sulphates",col="gray")
-boxplot.stats(wine_red$sulphates)$out
+boxplot(redwine$sulphates,main = "sulphates",col="gray")
+boxplot.stats(redwine$sulphates)$out
 
 
-boxplot(wine_red$ alcohol,main = " alcohol",col="gray")
-boxplot.stats(wine_red$ alcohol)$out
+boxplot(redwine$ alcohol,main = " alcohol",col="gray")
+boxplot.stats(redwine$ alcohol)$out
 #alcohol está dentro de unos rangos adecuados
 
 ```
@@ -133,25 +133,25 @@ Vamos a proceder a realizar 3 grupos. Un primer grupo de alto y bajo contenido d
 A continuación creamos la partición a partir del tercer cuartil de la variable `alcohol`:
 
 ```{r}
-high_alcohol<-quantile(wine_red$alcohol, probs =0.75)
-vinos.altoAlcohol<-wine_red[wine_red$alcohol>=high_alcohol,]$quality
-vinos.bajoAlcohol<-wine_red[wine_red$alcohol<high_alcohol,]$quality
+high_alcohol<-quantile(redwine$alcohol, probs =0.75)
+vinos.altoAlcohol<-redwine[redwine$alcohol>=high_alcohol,]$quality
+vinos.bajoAlcohol<-redwine[redwine$alcohol<high_alcohol,]$quality
 ```
 
 Variable `residual.sugar`:
 
 ```{r}
-high_sugar<-quantile(wine_red$residual.sugar, probs =0.75)
-vinos.altoGradoAzucar<-wine_red[wine_red$residual.sugar>=high_sugar,]$quality
-vinos.bajoGradoAzucar<-wine_red[wine_red$residual.sugar<high_sugar,]$quality
+high_sugar<-quantile(redwine$residual.sugar, probs =0.75)
+vinos.altoGradoAzucar<-redwine[redwine$residual.sugar>=high_sugar,]$quality
+vinos.bajoGradoAzucar<-redwine[redwine$residual.sugar<high_sugar,]$quality
 ```
 
 Y finalmente, `volatile.acidity`:
 
 ```{r}
-high_volatile.acidity<-quantile(wine_red$volatile.acidity, probs =0.75)
-vinos.altoVolatile.acidity<-wine_red[wine_red$volatile.acidity>=high_volatile.acidity,]$quality
-vinos.bajoVolatile.acidity<-wine_red[wine_red$volatile.acidity<high_volatile.acidity,]$quality
+high_volatile.acidity<-quantile(redwine$volatile.acidity, probs =0.75)
+vinos.altoVolatile.acidity<-redwine[redwine$volatile.acidity>=high_volatile.acidity,]$quality
+vinos.bajoVolatile.acidity<-redwine[redwine$volatile.acidity<high_volatile.acidity,]$quality
 ```
 
 
@@ -165,15 +165,15 @@ Aplicando la siguiente función podemos comprobar si siguen una distribución no
 library(nortest)
 
 alpha = 0.05
-col.names = colnames(wine_red)
-for (i in 1:ncol(wine_red)) {
+col.names = colnames(redwine)
+for (i in 1:ncol(redwine)) {
   if (i == 1) cat("Variables que no siguen una distribución normal:\n")
-  if (is.integer(wine_red[,i]) | is.numeric(wine_red[,i])) {
-      p_val = ad.test(wine_red[,i])$p.value
+  if (is.integer(redwine[,i]) | is.numeric(redwine[,i])) {
+      p_val = ad.test(redwine[,i])$p.value
         if (p_val < alpha) {
             cat(col.names[i])
                   # Format output
-            if (i < ncol(wine_red) - 1) cat(", ")
+            if (i < ncol(redwine) - 1) cat(", ")
             if (i %% 3 == 0) cat("\n") 
         }
       } 
@@ -183,20 +183,20 @@ for (i in 1:ncol(wine_red)) {
 Otra alternativa es aplicar la función *shapiro.test* y a partir del valor obtenido de p-valor podremos decir si es normal o no.
 
 ```{r}
-shapiro.test(vinos$fixed.acidity)
-shapiro.test(vinos$volatile.acidity)
-shapiro.test(vinos$citric.acid)
-shapiro.test(vinos$residual.sugar)
-shapiro.test(vinos$chlorides)
-shapiro.test(vinos$free.sulfur.dioxide)
-shapiro.test(vinos$total.sulfur.dioxide)
-shapiro.test(vinos$density)
-shapiro.test(vinos$pH)
-shapiro.test(vinos$sulphates)
-shapiro.test(vinos$alcohol)
+shapiro.test(redwine$fixed.acidity)
+shapiro.test(redwine$volatile.acidity)
+shapiro.test(redwine$citric.acid)
+shapiro.test(redwine$residual.sugar)
+shapiro.test(redwine$chlorides)
+shapiro.test(redwine$free.sulfur.dioxide)
+shapiro.test(redwine$total.sulfur.dioxide)
+shapiro.test(redwine$density)
+shapiro.test(redwine$pH)
+shapiro.test(redwine$sulphates)
+shapiro.test(redwine$alcohol)
 ```
 
-Como el p-valor es inferior al 0.05 podemos rechazar la hipótesis nula y decir que no es normal.
+Como el p-valor es inferior al 0.05 podemos rechazar la hipótesis nula y decir que no se aproxima a una distribución normal.
 
 
 ## 4.3 Aplicación de pruebas estadísticas para comparar los grupos de datos. En función de los datos y el objetivo del estudio, aplicar pruebas de contraste de hipótesis, correlaciones, regresiones, etc.
@@ -208,10 +208,10 @@ En primer lugar, procedemos a realizar un análisis de correlación entre las di
 corr_matrix <- matrix(nc = 2, nr = 0)
 colnames(corr_matrix) <- c("estimate", "p-value")
 # Calcular el coeficiente de correlación para cada variable cuantitativa # con respecto al campo "precio"
-for (i in 1:(ncol(wine_red) - 1)) {
-if (is.integer(wine_red[,i]) | is.numeric(wine_red[,i]))
+for (i in 1:(ncol(redwine) - 1)) {
+if (is.integer(redwine[,i]) | is.numeric(redwine[,i]))
     { 
-    spearman_test = cor.test(wine_red[,i],wine_red[,length(wine_red)],method = "spearman")
+    spearman_test = cor.test(redwine[,i],redwine[,length(redwine)],method = "spearman")
       corr_coef = spearman_test$estimate
       p_val = spearman_test$p.value
       # Add row to matrix
@@ -219,7 +219,7 @@ if (is.integer(wine_red[,i]) | is.numeric(wine_red[,i]))
     pair[1][1] = corr_coef
     pair[2][1] = p_val
     corr_matrix <- rbind(corr_matrix, pair)
-    rownames(corr_matrix)[nrow(corr_matrix)] <- colnames(wine_red)[i]
+    rownames(corr_matrix)[nrow(corr_matrix)] <- colnames(redwine)[i]
   } 
 }
 
@@ -231,104 +231,78 @@ Así, identificamos cuáles son las variables más correlacionadas con la calida
 
 Teniendo esto en cuenta, queda patente cómo la variable más relevante para **la calidad** es la variable `alcohol`. Pero en términos generales podemos decir que los valores que obtenemos son bastante modestos y no sería adecuado obtener ninguna conclusión por ahora. Lo único que podemos hacer es utilizar estos valores como tendencias.
 
-Nota. Para cada coeficiente de correlación se muestra también su p-valor asociado, puesto que éste puede dar información acerca del peso estadístico de la correlación obtenida.
+```{r}
+#install.packages("corrplot")
+library(corrplot)
+corrplot(cor(redwine))
+```
+*Nota: Para cada coeficiente de correlación se muestra también su p-valor asociado, puesto que éste puede dar información acerca del peso estadístico de la correlación obtenida.*
+
+
+### ¿Qué variables pueden influir más en la calidad de un vino?
+
+Utilizando la división de los diferentes grupos que se ha realizado en el apartado 4.1, vamos a realizar un contraste de hipótesis para conocer si altos valores de una variable afectan a la calidad final del vino.
+
+#### ¿A mayor alcohol mayor calidad?
+
+Tomando aquellos vinos con nivel de alcohol superior al tercer cuartil aplicamos el siguiente contraste de hipótesis, que no influya y por tanto permanezca igual o por el contrario que si influya y la calidad sea mayor:
+
+$H_0: \mu_0 - \mu_1  = 0$
+$H_1 : \mu_0 - \mu_1 < 0$
+Donde $\mu_0$ es la primera muestra de altos contenidos y $\mu_1$ la segunda muestra de bajos contenidos.
+
+```{r}
+t.test(vinos.altoAlcohol, vinos.bajoAlcohol)
+```
+
+Para el alcohol obtenemos que *p-valor* es menor que 0.05 por lo que rechazamos la hipótesis nula y podemos decir que para altos valores de alcohol mejora la calidad.
+
+```{r}
+t.test(vinos.altoGradoAzucar, vinos.bajoGradoAzucar)
+```
+Sin embargo con el azucar ocurre lo contrario y no podemos rechazar la hipótesis nula.
+
+
+```{r}
+t.test(vinos.altoVolatile.acidity, vinos.bajoVolatile.acidity)
+```
+
+Para la `acidez` ocurre lo mismo que para el `alcohol`, podemos rechazar la hipótesis nula y decir que a mayor acidez mejor calidad.
 
 ### Modelo de regresión lineal logística
-
-Tal y como se planteó en los objetivos de la actividad, resultará de mucho interés poder realizar predicciones sobre la calidad del vino dadas sus características.
-Así, se calculará un modelo de regresión lógistica utilizando regresores tanto cuantitativos como cualitativos con el que poder realizar las predicciones sobre la calidad.
-
-**Se usa regresión logística ya que nuestro modelo predicirá si el vino es de calidad o no (variable dicotómica).**
-
-Para obtener un modelo de regresión logística considerablemente eficiente, lo que haremos será obtener varios modelos de regresión utilizando las variables que estén más correladas con respecto a la calidad.
-
-**DUDA: ¿Cómo saber cuantas variables coger: las 3, 4 o 5 primeras?¿Añado otra más que no esté en ese TOP? ¿Cómo averiguar si las variables están relacionadas y por tanto no debo añadir ambas? ¿Solo tengo como herramienta la información que tengo de las variables?**
+Para realizar predicciones en la calidad del vino vamos a plantear un modelo de regresión logística en dónde solamente tendremos regresores cuantitativos. La variable a predecir será una variable dicotómica transformada previamente (`Binary.quality`esta tomará valores de calidad *0* si es menor que 7 ó *1* en caso contrario).
 
 ```{r}
-
 # Regresores cuantitativos con mayor coeficiente  de correlación con respecto al precio
-alcohol = wine_red$alcohol
-volatile.acidity = wine_red$volatile.acidity
-sulphates=wine_red$sulphates
-citric.acid=wine_red$citric.acid
-total.sulfur.dioxide=wine_red$total.sulfur.dioxide
-chlorides=wine_red$chlorides
-density=wine_red$density
-fixed.acidity=wine_red$fixed.acidity
-free.sulfur.dioxide=wine_red$free.sulfur.dioxide  
-pH=wine_red$pH
-good_wine <-ifelse(test=wine_red$quality>=7,yes=1,no=0)
-wine_red$good_wine=good_wine
+redwine$Binary.quality <-ifelse(test=redwine$quality>=7,yes=1,no=0)
 
-GLM.1 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + fixed.acidity, family=binomial(logit),data=wine_red)
-#summary(GLM.1)
-AIC_GLM1<-summary(GLM.1)$aic
-#exp(coef(GLM.1))
+modelo.logistico.1 <- glm(Binary.quality ~ alcohol + volatile.acidity,data=redwine)
+exp(coefficients(modelo.logistico.1))
 
-GLM.2 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + citric.acid, family=binomial(logit),data=wine_red)
-#summary(GLM.2)
-AIC_GLM2<-summary(GLM.2)$aic
-#exp(coef(GLM.2))
+modelo.logistico.2 <- glm(Binary.quality ~ alcohol + volatile.acidity + fixed.acidity,data=redwine)
 
+modelo.logistico.3 <- glm(Binary.quality ~ alcohol + volatile.acidity + fixed.acidity + free.sulfur.dioxide ,data=redwine)
 
-GLM.3 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + density, family=binomial(logit),data=wine_red)
-AIC_GLM3<-summary(GLM.3)$aic
+modelo.logistico.4 <- glm(Binary.quality ~ alcohol + volatile.acidity + fixed.acidity + free.sulfur.dioxide + sulphates,data=redwine)
 
+modelo.logistico.5 <- glm(Binary.quality ~ fixed.acidity + citric.acid + free.sulfur.dioxide+ total.sulfur.dioxide + density,data=redwine)
+summary(modelo.logistico.5)
 
-GLM.4 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + total.sulfur.dioxide, family=binomial(logit),data=wine_red)
-AIC_GLM4<-summary(GLM.4)$aic
+AIC(modelo.logistico.1, modelo.logistico.2, modelo.logistico.3, modelo.logistico.4)
 
-
-GLM.5 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + free.sulfur.dioxide  , family=binomial(logit),data=wine_red)
-AIC_GLM5<-summary(GLM.5)$aic
-
-GLM.6 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + chlorides  , family=binomial(logit),data=wine_red)
-AIC_GLM6<-summary(GLM.6)$aic
-
-GLM.7 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + pH  , family=binomial(logit),data=wine_red)
-AIC_GLM7<-summary(GLM.7)$aic
-
-# DUDA: ¿¿A MÁS VARIABLES ES MEJOR??
-GLM.8 <- glm( wine_red$good_wine ~ alcohol + volatile.acidity + sulphates + total.sulfur.dioxide + citric.acid + free.sulfur.dioxide , family=binomial(logit),data=wine_red)
-AIC_GLM8<-summary(GLM.8)$aic
-
-AIC_GLM1
-AIC_GLM2
-AIC_GLM3
-AIC_GLM4
-AIC_GLM5
-AIC_GLM6
-AIC_GLM7
-AIC_GLM8
-p_model8 <- predict(GLM.8, type = 'response')
-p_model4 <- predict(GLM.4, type = 'response')
-summary(p_model4)
-wine_red$prob<-p_model4
-wine_red$prob2<-p_model8
-pred <-ifelse(test=wine_red$prob>0.7,yes=1,no=0)
-pred2 <-ifelse(test=wine_red$prob2>0.7,yes=1,no=0)
-wine_red$pred=pred
-wine_red$pred2=pred2
 ```
 
-# 5. Representación de los resultados a partir de tablas y gráficas.
-
-**Se observa una clara tendencia a que a más alcohol, mejor es la calidad**
 ```{r}
-library(ggplot2)
-ggplot(wine_red, aes(x = alcohol, y = fixed.acidity, color = wine_red$good_wine)) + geom_point()
-aux=summary(wine_red$alcohol)
+predicciones <- ifelse(test = modelo.logistico.4$fitted.values > 0.7, yes = 1, no = 0)
+matriz_confusion <- table(modelo.logistico.4$model$Binary.quality, predicciones,
+                          dnn = c("observaciones", "predicciones"))
+
+print(matriz_confusion)
 ```
-### Calculo curva ROC
-El mejor modelo, el número 4 tan solo me da un AUC=0.5451, es bastante malo. 
 
 ```{r}
-
 library(pROC)
-#Cáculo curva
-g<-roc(wine_red$good_wine,wine_red$pred)
-g
-#Área bajo la curva
-auc(g)
-plot(g) 
+roc_curve = roc(redwine$Binary.quality, predicciones, AUC = TRUE, ci = TRUE)
+
+plot.roc(roc_curve, legacy.axes = TRUE, print.thres = "best", print.auc = TRUE, auc.polygon = FALSE, col = 2, grid = TRUE)
 ```
