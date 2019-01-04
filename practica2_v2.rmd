@@ -276,25 +276,21 @@ Para realizar predicciones en la calidad del vino vamos a plantear un modelo de 
 # Regresores cuantitativos con mayor coeficiente  de correlación con respecto al precio
 redwine$Binary.quality <-ifelse(test=redwine$quality>=7,yes=1,no=0)
 
-modelo.logistico.1 <- glm(Binary.quality ~ alcohol + volatile.acidity,data=redwine)
+modelo <- glm(Binary.quality ~ fixed.acidity + volatile.acidity + citric.acid +residual.sugar +chlorides +free.sulfur.dioxide+ total.sulfur.dioxide+density+ pH+ sulphates+alcohol,data=redwine)
 exp(coefficients(modelo.logistico.1))
 
-modelo.logistico.2 <- glm(Binary.quality ~ alcohol + volatile.acidity + fixed.acidity,data=redwine)
+step(object = modelo, direction = "both", trace = 1)
 
-modelo.logistico.3 <- glm(Binary.quality ~ alcohol + volatile.acidity + fixed.acidity + free.sulfur.dioxide ,data=redwine)
+modelo.logistico.1 <- glm(Binary.quality ~ fixed.acidity + volatile.acidity + residual.sugar + chlorides + total.sulfur.dioxide + density + sulphates + alcohol,data=redwine)
+exp(coefficients(modelo.logistico.1))
 
-modelo.logistico.4 <- glm(Binary.quality ~ alcohol + volatile.acidity + fixed.acidity + free.sulfur.dioxide + sulphates,data=redwine)
-
-modelo.logistico.5 <- glm(Binary.quality ~ fixed.acidity + citric.acid + free.sulfur.dioxide+ total.sulfur.dioxide + density,data=redwine)
-summary(modelo.logistico.5)
-
-AIC(modelo.logistico.1, modelo.logistico.2, modelo.logistico.3, modelo.logistico.4)
+summary(modelo.logistico.1)
 
 ```
 
 ```{r}
-predicciones <- ifelse(test = modelo.logistico.4$fitted.values > 0.7, yes = 1, no = 0)
-matriz_confusion <- table(modelo.logistico.4$model$Binary.quality, predicciones,
+predicciones <- ifelse(test = modelo.logistico.1$fitted.values > 0.7, yes = 1, no = 0)
+matriz_confusion <- table(modelo.logistico.1$model$Binary.quality, predicciones,
                           dnn = c("observaciones", "predicciones"))
 
 print(matriz_confusion)
