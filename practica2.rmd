@@ -201,7 +201,6 @@ Nota. Para cada coeficiente de correlación se muestra también su p-valor asoci
 high_alcohol<-quantile(wine_red$alcohol, probs =0.75)
 
 quality_alcohol<-wine_red[wine_red$alcohol>=high_alcohol,]$quality
-
  t.test(quality_alcohol, wine_red$quality, alternative = "greater")
  
  #a mas alcohol por lo general más calidad
